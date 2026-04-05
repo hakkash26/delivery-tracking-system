@@ -1,0 +1,23 @@
+version: '3.8'
+
+# Run Jenkins locally with Docker socket mounted so Jenkins can build Docker images.
+# Usage:
+#   docker-compose -f jenkins/docker-compose-jenkins.yml up -d
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: jenkins
+    user: root
+    ports:
+      - "8081:8080"     # Jenkins UI → http://localhost:8081
+      - "50000:50000"   # Agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock   # Allow Jenkins to run Docker commands
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:

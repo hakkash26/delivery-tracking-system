@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-tracking
+  namespace: delivery-app
+  labels:
+    app: delivery-tracking-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: delivery-tracking-system
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: delivery-tracking-system
+    spec:
+      containers:
+        - name: delivery-tracking
+          image: your-dockerhub-username/delivery-tracking-system:latest  # ← CHANGE USERNAME
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/deliveries/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/deliveries/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
