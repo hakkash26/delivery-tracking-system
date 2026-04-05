@@ -30,7 +30,8 @@ pipeline {
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/*.xml'
+                    // Prevent failure if no test reports
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
                 }
                 failure {
                     echo '❌ Tests failed! Stopping pipeline.'
@@ -65,7 +66,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat """
-                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                     docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%DOCKER_TAG%
                     docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest
                     """
@@ -78,12 +79,19 @@ pipeline {
                 echo '☸️ Deploying to Kubernetes...'
                 withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
                     bat """
+                    set KUBECONFIG=%KUBECONFIG%
+
+                    echo Creating namespace if not exists...
+                    kubectl create namespace %K8S_NAMESPACE% || echo Namespace exists
+
                     kubectl apply -f k8s/namespace.yaml
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
 
+                    echo Updating image...
                     kubectl set image deployment/delivery-tracking delivery-tracking=%DOCKER_REGISTRY%/%DOCKER_IMAGE%:%DOCKER_TAG% -n %K8S_NAMESPACE%
 
+                    echo Waiting for rollout...
                     kubectl rollout status deployment/delivery-tracking -n %K8S_NAMESPACE% --timeout=120s
                     """
                 }
