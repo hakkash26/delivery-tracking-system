@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: delivery-tracking
-          image: your-dockerhub-username/delivery-tracking-system:latest  # ← CHANGE USERNAME
+          image: hakkash26/delivery-tracking-system:latest  # ← CHANGE USERNAME
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
