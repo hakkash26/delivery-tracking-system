@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE     = 'delivery-tracking-system'
         DOCKER_TAG       = "${BUILD_NUMBER}"
-        DOCKER_REGISTRY  = 'your-dockerhub-username'   // ← CHANGE THIS
+        DOCKER_REGISTRY  = 'hakkash26'   // ← CHANGE THIS
         KUBECONFIG_CRED  = 'kubeconfig-credentials'
         K8S_NAMESPACE    = 'delivery-app'
     }
