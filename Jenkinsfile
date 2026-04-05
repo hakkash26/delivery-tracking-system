@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE     = 'delivery-tracking-system'
         DOCKER_TAG       = "${BUILD_NUMBER}"
-        DOCKER_REGISTRY  = 'hakkash26'   // ← CHANGE THIS
+        DOCKER_REGISTRY  = 'hakkash26'
         KUBECONFIG_CRED  = 'kubeconfig-credentials'
         K8S_NAMESPACE    = 'delivery-app'
     }
@@ -65,7 +65,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     bat """
-                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
                     docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:%DOCKER_TAG%
                     docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE%:latest
                     """
