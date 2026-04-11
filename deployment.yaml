@@ -16,7 +16,7 @@ spec:
  spec:
  containers:
  - name: java-test-app
- image: dockerhub-username/java-test-app:latest
+image: hakkash26/delivery-tracking-system:latest  # ✅ new repo name
  imagePullPolicy: Always
  ports:
  - containerPort: 8080
